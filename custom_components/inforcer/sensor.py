@@ -122,7 +122,7 @@ class InforcerAlignmentScoreOverallSensor(
     _attr_icon = "mdi:shield-check"
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_suggested_display_precision = 1
+    _attr_suggested_display_precision = 2
 
     def __init__(
         self, coordinator: InforcerDataUpdateCoordinator, entry: InforcerConfigEntry
@@ -145,7 +145,7 @@ class InforcerBaselineAlignmentScoreSensor(
     _attr_icon = "mdi:shield-star"
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_suggested_display_precision = 1
+    _attr_suggested_display_precision = 2
 
     def __init__(
         self,
@@ -194,7 +194,7 @@ class InforcerSecureScoreOverallSensor(
     _attr_icon = "mdi:security"
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_suggested_display_precision = 1
+    _attr_suggested_display_precision = 2
 
     def __init__(
         self, coordinator: InforcerDataUpdateCoordinator, entry: InforcerConfigEntry
@@ -225,7 +225,7 @@ class InforcerTenantSecureScoreSensor(
     _attr_icon = "mdi:security"
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_suggested_display_precision = 1
+    _attr_suggested_display_precision = 2
 
     def __init__(
         self,
