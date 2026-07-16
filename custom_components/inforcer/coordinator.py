@@ -149,6 +149,15 @@ class InforcerDataUpdateCoordinator(DataUpdateCoordinator[InforcerData]):
         except InforcerApiError as err:
             raise UpdateFailed(f"Inforcer API returned an error: {err}") from err
 
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            _LOGGER.debug("Raw /beta/tenants payload: %s", tenants)
+            _LOGGER.debug("Raw /beta/alignmentScores payload: %s", alignment_scores)
+            _LOGGER.debug("Raw /beta/baselines payload: %s", baselines)
+            _LOGGER.debug(
+                "Raw per-tenant secureScores payloads: %s",
+                {t.tenant_id: t.raw for t in tenant_secure_scores},
+            )
+
         baseline_scores = self._build_baseline_scores(baselines, alignment_scores)
         alignment_overall = self._build_overall_alignment(
             alignment_scores, baseline_scores
