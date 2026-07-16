@@ -13,9 +13,9 @@ A custom Home Assistant integration for [Inforcer](https://www.inforcer.com), a 
 ## Generating an API key
 
 1. Sign in to the Inforcer UI.
-2. Go to **Settings > API keys** (or the equivalent Beta API section of your account).
+2. Go to **Configure > REST API**.
 3. Create a new key. **Copy it immediately** — Inforcer only shows the key once, at creation time.
-4. Note the expiry date your organization's policy applies to the key (Inforcer does not enforce an expiry itself; expiry is up to your own key rotation policy, up to 12 months).
+4. Note the expiry date your organization's policy applies to the key
 
 ## Installation
 
