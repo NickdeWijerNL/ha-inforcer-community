@@ -96,5 +96,3 @@ custom_components/inforcer/
     ├── en.json
     └── nl.json
 ```
-
-Contributions and schema corrections (once verified against a live Inforcer account) are welcome via PR.
