@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select your Inforcer region",
+        "description": "Choose the region your Inforcer account is hosted in.",
+        "data": {
+          "region": "Region"
+        }
+      },
+      "api_key": {
+        "title": "Enter your Inforcer API key",
+        "description": "Create an API key in the Inforcer UI (Settings > API keys) and paste it here. The key is only shown once when created.",
+        "data": {
+          "api_key": "API key"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reconnect to Inforcer",
+        "description": "The stored Inforcer API key was rejected. It may have expired or been revoked. Create a new key in the Inforcer UI and enter it below.",
+        "data": {
+          "api_key": "New API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The API key was rejected (401). Check that it was copied correctly and has not expired or been revoked.",
+      "rate_limited": "The Inforcer API rate limit was reached (429). Wait a moment and try again.",
+      "cannot_connect": "Could not connect to the Inforcer API. Check your network connection and the selected region.",
+      "unknown": "Unexpected error while contacting the Inforcer API."
+    },
+    "abort": {
+      "already_configured": "This Inforcer region is already configured.",
+      "reauth_successful": "The new Inforcer API key was validated and saved."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Inforcer options",
+        "description": "Adjust how often data is polled, or rotate your API key before it expires.",
+        "data": {
+          "update_interval": "Update interval (minutes)",
+          "api_key": "New API key (leave blank to keep the current key)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The new API key was rejected (401). Check that it was copied correctly.",
+      "rate_limited": "The Inforcer API rate limit was reached (429). Wait a moment and try again.",
+      "cannot_connect": "Could not connect to the Inforcer API. Check your network connection.",
+      "unknown": "Unexpected error while contacting the Inforcer API."
+    }
+  }
+}

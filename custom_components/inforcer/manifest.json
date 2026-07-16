@@ -1,0 +1,12 @@
+{
+  "domain": "inforcer",
+  "name": "Inforcer",
+  "codeowners": ["@nickdewijer"],
+  "config_flow": true,
+  "documentation": "https://github.com/nickdewijer/ha-inforcer-community",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/nickdewijer/ha-inforcer-community/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Selecteer je Inforcer-regio",
+        "description": "Kies de regio waarin jouw Inforcer-account gehost wordt.",
+        "data": {
+          "region": "Regio"
+        }
+      },
+      "api_key": {
+        "title": "Voer je Inforcer API-sleutel in",
+        "description": "Maak een API-sleutel aan in de Inforcer-UI (Instellingen > API-sleutels) en plak deze hier. De sleutel wordt maar één keer getoond bij het aanmaken.",
+        "data": {
+          "api_key": "API-sleutel"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Opnieuw verbinden met Inforcer",
+        "description": "De opgeslagen Inforcer API-sleutel werd geweigerd. Mogelijk is deze verlopen of ingetrokken. Maak een nieuwe sleutel aan in de Inforcer-UI en voer deze hieronder in.",
+        "data": {
+          "api_key": "Nieuwe API-sleutel"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "De API-sleutel werd geweigerd (401). Controleer of deze correct is gekopieerd en niet verlopen of ingetrokken is.",
+      "rate_limited": "De rate limit van de Inforcer API is bereikt (429). Wacht even en probeer het opnieuw.",
+      "cannot_connect": "Kon geen verbinding maken met de Inforcer API. Controleer je netwerkverbinding en de gekozen regio.",
+      "unknown": "Onverwachte fout bij het benaderen van de Inforcer API."
+    },
+    "abort": {
+      "already_configured": "Deze Inforcer-regio is al geconfigureerd.",
+      "reauth_successful": "De nieuwe Inforcer API-sleutel is gevalideerd en opgeslagen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Inforcer-opties",
+        "description": "Pas aan hoe vaak gegevens worden opgehaald, of vervang je API-sleutel voordat deze verloopt.",
+        "data": {
+          "update_interval": "Update-interval (minuten)",
+          "api_key": "Nieuwe API-sleutel (leeg laten om de huidige sleutel te behouden)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "De nieuwe API-sleutel werd geweigerd (401). Controleer of deze correct is gekopieerd.",
+      "rate_limited": "De rate limit van de Inforcer API is bereikt (429). Wacht even en probeer het opnieuw.",
+      "cannot_connect": "Kon geen verbinding maken met de Inforcer API. Controleer je netwerkverbinding.",
+      "unknown": "Onverwachte fout bij het benaderen van de Inforcer API."
+    }
+  }
+}
