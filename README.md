@@ -64,7 +64,7 @@ Baseline and tenant sensors are added dynamically as they appear in Inforcer —
 
 ## Rate limits and polling
 
-Inforcer allows 400 requests/minute per API key, with server-side response caching for 300 seconds per key/endpoint pair. Per-tenant secure score requests are fanned out per tenant, so the coordinator caps concurrency (5 simultaneous requests) rather than firing all of them at once. The default 20-minute poll interval stays comfortably under the limit for typical tenant counts; if you manage a very large number of tenants, consider raising the interval in the options flow.
+Inforcer allows 400 requests/minute per API key, with server-side response caching for 300 seconds per key/endpoint pair. Each poll makes exactly 3 requests — `/beta/tenants`, `/beta/alignmentScores`, `/beta/baselines` — regardless of tenant count: `/beta/tenants` already includes each tenant's current secure score inline, so no per-tenant fan-out is needed. The default 20-minute poll interval stays comfortably under the limit even for large MSP tenant counts.
 
 ## Error handling
 
@@ -76,9 +76,9 @@ Logs use `custom_components.inforcer` as the logger name and never include the A
 
 ## Known limitations
 
-- The per-tenant secure score endpoint's (`/beta/tenants/{tenantId}/secureScores`) exact JSON schema is not published. This integration parses it defensively (handling a bare number, a single score object, or a list/history of scores) and takes the most recent value. If your account's response shape differs, check `coordinator.py`'s `_extract_score` helper and its candidate key lists.
-- Similarly, the exact key names used in `/beta/alignmentScores` and `/beta/baselines` for joining scores to baselines are inferred from the documented response envelope, not confirmed against a live account.
-- This integration was built without access to a live Inforcer tenant/API key; validate against your own account after installing, and open an issue if the parsing needs adjusting for the real schema.
+- Secure score is read directly from the `secureScore` field on each `/beta/tenants` entry (confirmed against a live account). The dedicated `/beta/tenants/{tenantId}/secureScores` endpoint mentioned in Inforcer's beta docs is not called by this integration — it wasn't needed once the inline field was confirmed, and skipping it keeps polling to a fixed 3 requests regardless of tenant count. If that endpoint turns out to expose richer history/control-level detail you want surfaced, please open an issue.
+- Baseline join key (`baselineGroupId` on alignment score entries, matched against a baseline's `id`), tenant identifier (`clientTenantId`) and tenant name (`tenantFriendlyName`) were all confirmed against a live account's responses — see the candidate-key comment at the top of `coordinator.py` if Inforcer changes these field names in a future beta revision.
+- A baseline with no tenant currently evaluated against it (e.g. an unused blueprint template) will correctly show its alignment sensor as `unknown` — there is no score to report, not a parsing bug.
 
 ## Development
 

@@ -26,9 +26,5 @@ MAX_UPDATE_INTERVAL_MINUTES: Final = 120
 DEFAULT_UPDATE_INTERVAL: Final = timedelta(minutes=DEFAULT_UPDATE_INTERVAL_MINUTES)
 
 REQUEST_TIMEOUT: Final = 30
-# Server caches each key/endpoint combination for 300s and allows 400 req/min per key.
-# Per-tenant calls (secure scores) are fanned out, so cap concurrency to stay well
-# under the burst limit even for MSPs with large tenant counts.
-MAX_CONCURRENT_TENANT_REQUESTS: Final = 5
 
 MANUFACTURER: Final = "Inforcer"

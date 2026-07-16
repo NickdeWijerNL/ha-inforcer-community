@@ -1,7 +1,6 @@
 """DataUpdateCoordinator for the Inforcer integration."""
 from __future__ import annotations
 
-import asyncio
 import logging
 from dataclasses import dataclass, field
 from datetime import timedelta
@@ -19,15 +18,17 @@ from .api import (
     InforcerConnectionError,
     InforcerRateLimitError,
 )
-from .const import DOMAIN, MAX_CONCURRENT_TENANT_REQUESTS
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# Candidate key names tried in order when parsing beta-endpoint payloads whose
-# exact schema Inforcer hasn't published. If Inforcer's response shape turns
-# out to differ, this is the place to add the real key names.
-_ID_KEYS = ("id", "tenantId", "baselineId", "_id")
-_NAME_KEYS = ("name", "tenantName", "baselineName", "displayName")
+# Candidate key names tried in order when parsing beta-endpoint payloads.
+# Confirmed against a live account: tenants use clientTenantId/tenantFriendlyName,
+# baselines use id/name, and alignment score entries reference their baseline via
+# baselineGroupId (joined against a baseline's id).
+_ID_KEYS = ("id", "clientTenantId", "tenantId", "baselineId", "_id")
+_NAME_KEYS = ("name", "tenantFriendlyName", "tenantName", "baselineName", "displayName")
+_BASELINE_REF_KEYS = ("baselineGroupId", "baselineId", "baseline_id")
 _SCORE_KEYS = ("score", "alignmentScore", "secureScore", "currentScore", "value", "percentage")
 _HISTORY_KEYS = ("history", "scores", "results")
 _DATE_KEYS = ("date", "recordedDateTime", "createdAt", "timestamp")
@@ -86,12 +87,11 @@ class BaselineScore:
 
 @dataclass
 class TenantSecureScore:
-    """Secure score for a single tenant."""
+    """Secure score for a single tenant, sourced from /beta/tenants directly."""
 
     tenant_id: str
     name: str
     score: float | None
-    raw: Any = None
 
 
 @dataclass
@@ -133,9 +133,6 @@ class InforcerDataUpdateCoordinator(DataUpdateCoordinator[InforcerData]):
             tenants = await self._client.async_get_tenants()
             alignment_scores = await self._client.async_get_alignment_scores()
             baselines = await self._client.async_get_baselines()
-            tenant_secure_scores = await self._async_fetch_tenant_secure_scores(
-                tenants
-            )
         except InforcerAuthError as err:
             raise ConfigEntryAuthFailed(
                 "Inforcer API key was rejected (401) - a new key is required"
@@ -153,11 +150,8 @@ class InforcerDataUpdateCoordinator(DataUpdateCoordinator[InforcerData]):
             _LOGGER.debug("Raw /beta/tenants payload: %s", tenants)
             _LOGGER.debug("Raw /beta/alignmentScores payload: %s", alignment_scores)
             _LOGGER.debug("Raw /beta/baselines payload: %s", baselines)
-            _LOGGER.debug(
-                "Raw per-tenant secureScores payloads: %s",
-                {t.tenant_id: t.raw for t in tenant_secure_scores},
-            )
 
+        tenant_secure_scores = self._build_tenant_secure_scores(tenants)
         baseline_scores = self._build_baseline_scores(baselines, alignment_scores)
         alignment_overall = self._build_overall_alignment(
             alignment_scores, baseline_scores
@@ -178,37 +172,25 @@ class InforcerDataUpdateCoordinator(DataUpdateCoordinator[InforcerData]):
             tenant_secure_scores=tenant_secure_scores,
         )
 
-    async def _async_fetch_tenant_secure_scores(
-        self, tenants: list[dict[str, Any]]
+    @staticmethod
+    def _build_tenant_secure_scores(
+        tenants: list[dict[str, Any]],
     ) -> list[TenantSecureScore]:
-        semaphore = asyncio.Semaphore(MAX_CONCURRENT_TENANT_REQUESTS)
-
-        async def fetch_one(tenant: dict[str, Any]) -> TenantSecureScore:
+        # /beta/tenants already includes each tenant's current secureScore
+        # inline, so no per-tenant /beta/tenants/{id}/secureScores fan-out is
+        # needed for a current-value sensor - confirmed against a live account.
+        results: list[TenantSecureScore] = []
+        for tenant in tenants:
+            if not isinstance(tenant, dict):
+                continue
             tenant_id = str(_first(tenant, _ID_KEYS) or "")
-            name = _first(tenant, _NAME_KEYS) or tenant_id
-            if not tenant_id:
-                return TenantSecureScore(tenant_id="", name=name, score=None)
-            async with semaphore:
-                try:
-                    raw = await self._client.async_get_tenant_secure_scores(
-                        tenant_id
-                    )
-                except InforcerAuthError:
-                    raise
-                except InforcerApiError as err:
-                    _LOGGER.warning(
-                        "Could not fetch secure score for tenant %s: %s",
-                        name,
-                        err,
-                    )
-                    return TenantSecureScore(
-                        tenant_id=tenant_id, name=name, score=None
-                    )
-            return TenantSecureScore(
-                tenant_id=tenant_id, name=name, score=_extract_score(raw), raw=raw
+            name = _first(tenant, _NAME_KEYS) or tenant_id or "Unknown tenant"
+            results.append(
+                TenantSecureScore(
+                    tenant_id=tenant_id, name=name, score=_extract_score(tenant)
+                )
             )
-
-        return await asyncio.gather(*(fetch_one(t) for t in tenants))
+        return results
 
     @staticmethod
     def _build_baseline_scores(
@@ -222,7 +204,7 @@ class InforcerDataUpdateCoordinator(DataUpdateCoordinator[InforcerData]):
         for entry in alignment_scores:
             if not isinstance(entry, dict):
                 continue
-            baseline_id = _first(entry, ("baselineId", "baseline_id"))
+            baseline_id = _first(entry, _BASELINE_REF_KEYS)
             if baseline_id is None:
                 continue
             score = _extract_score(entry)

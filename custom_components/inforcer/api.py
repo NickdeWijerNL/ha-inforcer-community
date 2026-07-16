@@ -114,14 +114,3 @@ class InforcerClient:
         """Return baseline info and tenant assignment."""
         data = await self._request("GET", "/beta/baselines")
         return data or []
-
-    async def async_get_tenant_secure_scores(self, tenant_id: str) -> Any:
-        """Return secure score data for a single tenant.
-
-        The exact schema for this endpoint isn't documented publicly (single
-        current score vs. a history list). Callers should treat the return
-        value defensively - see `coordinator.py` for the parsing logic.
-        """
-        return await self._request(
-            "GET", f"/beta/tenants/{tenant_id}/secureScores"
-        )
