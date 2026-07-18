@@ -17,7 +17,7 @@ class InforcerApiError(Exception):
 
 
 class InforcerAuthError(InforcerApiError):
-    """Raised on HTTP 401 - the API key is invalid, expired, or revoked."""
+    """Raised on HTTP 401 or 403 - the API key is invalid, expired, or revoked."""
 
 
 class InforcerRateLimitError(InforcerApiError):
@@ -65,8 +65,15 @@ class InforcerClient:
                 async with self._session.request(
                     method, url, headers=headers, json=json, params=params
                 ) as resp:
-                    if resp.status == 401:
-                        raise InforcerAuthError("Inforcer API key is invalid or expired")
+                    if resp.status in (401, 403):
+                        # Inforcer's docs only mention 401 for an invalid/expired
+                        # key, but a rejected key has also been observed to come
+                        # back as 403 with an auth-shaped message ("A valid API
+                        # key is required..."). Treat both as an auth failure so
+                        # the reauth flow triggers instead of retrying forever.
+                        raise InforcerAuthError(
+                            f"Inforcer API key was rejected (HTTP {resp.status})"
+                        )
                     if resp.status == 429:
                         raise InforcerRateLimitError(
                             "Inforcer API rate limit exceeded"

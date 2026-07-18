@@ -33,7 +33,7 @@ Copy `custom_components/inforcer` into your Home Assistant `config/custom_compon
 
 1. **Settings > Devices & Services > Add Integration**, search for **Inforcer**.
 2. **Step 1:** choose your region — ANZ, EU, UK, or US. This determines the API base URL used for every request.
-3. **Step 2:** paste your API key. It's validated immediately against `GET /beta/tenants` before the entry is created; you'll get a specific error if the key is invalid/expired (401), you're rate limited (429), or the API can't be reached.
+3. **Step 2:** paste your API key. It's validated immediately against `GET /beta/tenants` before the entry is created; you'll get a specific error if the key is rejected (401 or 403), you're rate limited (429), or the API can't be reached.
 
 Only one Inforcer config entry is supported per region (matching one Inforcer account/device per region).
 
@@ -41,7 +41,7 @@ Only one Inforcer config entry is supported per region (matching one Inforcer ac
 
 Inforcer keys expire and can't be retrieved once created, so this integration supports two ways to update the stored key without deleting and re-adding the integration:
 
-- **Automatic reauth:** if a request ever returns 401 (key expired or revoked), Home Assistant will surface a "reauthentication required" notification for this integration. Follow it to enter a new key.
+- **Automatic reauth:** if a request is ever rejected (401, or 403 with an auth-shaped message — Inforcer has been observed to use either for a bad key), Home Assistant will surface a "reauthentication required" notification for this integration. Follow it to enter a new key.
 - **Proactive rotation:** open the integration's **Configure** (options flow) at any time and enter a new key before the old one expires. Leave the field blank to keep the current key and only change the poll interval.
 
 The options flow is also where you adjust the **update interval** (default 20 minutes, configurable between 15 minutes and 2 hours).
@@ -68,7 +68,7 @@ Inforcer allows 400 requests/minute per API key, with server-side response cachi
 
 ## Error handling
 
-- **401** — triggers Home Assistant's reauth flow; entities remain at their last known state until reauthenticated.
+- **401 / 403** — treated as an auth failure, triggering Home Assistant's reauth flow; entities remain at their last known state until reauthenticated. (Inforcer's docs only mention 401 for a rejected key, but a 403 with an auth-shaped error message has also been observed in practice — see `api.py`.)
 - **429** — the current poll is skipped and retried on the next interval; sensors become `unavailable` if this persists.
 - **5xx / timeouts / connection errors** — logged and surfaced as `unavailable` entities rather than crashing the integration.
 

@@ -24,7 +24,7 @@
       }
     },
     "error": {
-      "invalid_auth": "De API-sleutel werd geweigerd (401). Controleer of deze correct is gekopieerd en niet verlopen of ingetrokken is.",
+      "invalid_auth": "De API-sleutel werd geweigerd. Controleer of deze correct is gekopieerd en niet verlopen of ingetrokken is.",
       "rate_limited": "De rate limit van de Inforcer API is bereikt (429). Wacht even en probeer het opnieuw.",
       "cannot_connect": "Kon geen verbinding maken met de Inforcer API. Controleer je netwerkverbinding en de gekozen regio.",
       "unknown": "Onverwachte fout bij het benaderen van de Inforcer API."
@@ -46,7 +46,7 @@
       }
     },
     "error": {
-      "invalid_auth": "De nieuwe API-sleutel werd geweigerd (401). Controleer of deze correct is gekopieerd.",
+      "invalid_auth": "De nieuwe API-sleutel werd geweigerd. Controleer of deze correct is gekopieerd.",
       "rate_limited": "De rate limit van de Inforcer API is bereikt (429). Wacht even en probeer het opnieuw.",
       "cannot_connect": "Kon geen verbinding maken met de Inforcer API. Controleer je netwerkverbinding.",
       "unknown": "Onverwachte fout bij het benaderen van de Inforcer API."

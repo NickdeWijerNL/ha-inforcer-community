@@ -24,7 +24,7 @@
       }
     },
     "error": {
-      "invalid_auth": "The API key was rejected (401). Check that it was copied correctly and has not expired or been revoked.",
+      "invalid_auth": "The API key was rejected. Check that it was copied correctly and has not expired or been revoked.",
       "rate_limited": "The Inforcer API rate limit was reached (429). Wait a moment and try again.",
       "cannot_connect": "Could not connect to the Inforcer API. Check your network connection and the selected region.",
       "unknown": "Unexpected error while contacting the Inforcer API."
@@ -46,7 +46,7 @@
       }
     },
     "error": {
-      "invalid_auth": "The new API key was rejected (401). Check that it was copied correctly.",
+      "invalid_auth": "The new API key was rejected. Check that it was copied correctly.",
       "rate_limited": "The Inforcer API rate limit was reached (429). Wait a moment and try again.",
       "cannot_connect": "Could not connect to the Inforcer API. Check your network connection.",
       "unknown": "Unexpected error while contacting the Inforcer API."
