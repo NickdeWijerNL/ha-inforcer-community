@@ -75,19 +75,35 @@ class InforcerClient:
                     try:
                         payload = await resp.json()
                     except (aiohttp.ContentTypeError, ValueError) as err:
+                        text = await resp.text()
+                        _LOGGER.debug(
+                            "Non-JSON response from %s (HTTP %s): %s",
+                            path,
+                            resp.status,
+                            text,
+                        )
                         resp.raise_for_status()
                         raise InforcerApiError(
-                            f"Unexpected response from Inforcer API ({resp.status})"
+                            f"Unexpected response from {path} (HTTP {resp.status})"
                         ) from err
 
-                    if resp.status >= 500:
-                        raise InforcerApiError(
-                            f"Inforcer API server error ({resp.status})"
+                    if resp.status >= 400 or payload.get("status") == "error":
+                        _LOGGER.debug(
+                            "Error response from %s (HTTP %s): %s",
+                            path,
+                            resp.status,
+                            payload,
                         )
-
-                    if payload.get("status") == "error" or resp.status >= 400:
+                        message = None
+                        if isinstance(payload, dict):
+                            for key in ("error", "message", "detail", "title"):
+                                if payload.get(key):
+                                    message = str(payload[key])
+                                    break
+                        if message is None:
+                            message = "no error detail returned"
                         raise InforcerApiError(
-                            payload.get("error", f"Inforcer API error ({resp.status})")
+                            f"{path} returned HTTP {resp.status}: {message}"
                         )
 
                     return payload.get("data")
